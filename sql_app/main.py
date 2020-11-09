@@ -116,6 +116,9 @@ def delete_order(order_id : int , db: Session = Depends(get_db)):
 def show_order(db: Session = Depends(get_db)):
     return crud.show_order(db= db)
 
+@app.post("/order feedback/",  tags=["Order"])
+def feedback_add(feedback_content : schemas.Feedback_data , db: Session = Depends(get_db)):
+    return crud.feedback_add(db= db , feedback_content = feedback_content)
 
 #&&&&&&&&&&&&&&&&& Fatch bill &&&&&&&&&&&&&&&&&&&&
 

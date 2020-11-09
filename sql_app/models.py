@@ -24,6 +24,7 @@ class Customer(Base):
 
     orders = relationship("Order", backref="customer")
     reservations = relationship("Reservation", backref="customer")  
+    feedbacks = relationship("Feedback", backref="customer")  
 
 
 class Order(Base):
@@ -32,7 +33,7 @@ class Order(Base):
     id = Column(Integer, primary_key = True,  index = True)
     food_id = Column(Integer , ForeignKey("foods.food_id"))
     customer_id = Column(Integer , ForeignKey("customers.id"))
-    # status = Column(String, default = "Order Placed")
+    feedbacks = relationship("Feedback", backref="order")  
 
 class Table(Base):
     __tablename__ = "tables"
@@ -52,6 +53,14 @@ class Reservation(Base):
     slot = Column(Integer)
     r_date = Column(Date)  # r_date represents Reservation date 
 
+class Feedback(Base):
+    __tablename__ = "feedbacks"
+
+    id = Column(Integer, primary_key = True , index = True)
+    customer_id = Column(Integer , ForeignKey("customers.id"))
+    order_id = Column(Integer , ForeignKey("orders.id"))
+    rate = Column(Integer)
+    comment = Column(String)  
 
 # class User(Base):
 #     __tablename__ = "users"

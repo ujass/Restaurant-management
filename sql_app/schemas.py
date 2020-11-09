@@ -54,6 +54,18 @@ class Table(BaseModel):
     class Config:
         orm_mode = True
 
+class Feedback_data(BaseModel):
+    customer_id : int
+    order_id :int
+    rate : int
+    comment : str 
+
+class Feedback(Feedback_data):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 
 # class ItemBase(BaseModel):
 #     title: str  

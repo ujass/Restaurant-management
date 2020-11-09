@@ -133,6 +133,12 @@ def show_order(db: Session):
     return db.query(models.Order).all()
 
 
+def feedback_add(db: Session , feedback_content : schemas.Feedback_data):
+    add_content = models.Feedback(**feedback_content.dict())
+    db.add(add_content)
+    db.commit()
+    db.refresh(add_content)
+    return {"Feedback Added"}
 
 
 # &&&&&&&&&&&&&&&& Bill &&&&&&&&&&&&&&&&&
@@ -190,7 +196,7 @@ def delete_reservation(db: Session, reservaion_id : int ):
 
 def check_table(db: Session , check_available : schemas.Check_reservation , person : int):
 
-    q = db.query(models.Table, models.Reservation).outerjoin(models.Reservation , and_(models.Table.id == models.Reservation.table_id, models.Reservation.r_date == check_available.r_date,
+    q = db.query(models.Table).outerjoin(models.Reservation , and_(models.Table.id == models.Reservation.table_id, models.Reservation.r_date == check_available.r_date,
         models.Reservation.slot == check_available.slot )).filter(models.Table.seat >= person, models.Reservation.id == None).all()
     return q
 
