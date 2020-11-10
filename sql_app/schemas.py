@@ -2,14 +2,19 @@ from typing import List, Optional
 from datetime import date, datetime
 from pydantic import BaseModel
 from sqlalchemy.sql.sqltypes import DateTime
+# from enum import Enum
 
 
-class Food(BaseModel):
-    food_id : int
+class Food_data(BaseModel):
     food_name : str
     food_category : str
     food_price : float
     food_quantity : int
+
+
+class Food(Food_data):
+    food_id : int
+   
 
     class Config:
         orm_mode = True
@@ -22,11 +27,13 @@ class Customer(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Order(BaseModel):
     id: int
     food_id: int 
     customer_id : int  
-    # status : str
+    status : Optional[str] = "Order Created"
+
     class Config:
         orm_mode = True
 
@@ -45,11 +52,13 @@ class Reservation(Check_reservation):
     class Config:
         orm_mode = True
 
-
-class Table(BaseModel):
-    id: int
+class Add_table(BaseModel):
     name: str
     seat : int
+
+class Table(Add_table):
+    id: int
+
 
     class Config:
         orm_mode = True
@@ -65,6 +74,22 @@ class Feedback(Feedback_data):
 
     class Config:
         orm_mode = True
+
+
+# class Update_status(str, Enum):
+#     Order_placed = "Order placed"
+#     Order_under_process = "Order under process"
+#     Order_served = "Order served"
+#     # Order_fail = "Order Fail"
+
+
+# class Status(BaseModel):
+#     id : int
+#     name : str
+
+#     class Config:
+#         orm_mode = True
+
 
 
 # class ItemBase(BaseModel):

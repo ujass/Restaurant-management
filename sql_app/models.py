@@ -1,3 +1,4 @@
+from enum import unique
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Boolean , DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import Date
@@ -33,6 +34,8 @@ class Order(Base):
     id = Column(Integer, primary_key = True,  index = True)
     food_id = Column(Integer , ForeignKey("foods.food_id"))
     customer_id = Column(Integer , ForeignKey("customers.id"))
+    status = Column(String)
+    # status_id = Column(Integer , ForeignKey("statuses.id"))
     feedbacks = relationship("Feedback", backref="order")  
 
 class Table(Base):
@@ -61,6 +64,16 @@ class Feedback(Base):
     order_id = Column(Integer , ForeignKey("orders.id"))
     rate = Column(Integer)
     comment = Column(String)  
+
+
+# class Status(Base):
+#     __tablename__ = "statuses"
+
+#     id = Column(Integer, primary_key = True, index = True)
+#     name = Column(String, unique = True)
+#     orders = relationship("Order", backref="status")
+
+
 
 # class User(Base):
 #     __tablename__ = "users"
