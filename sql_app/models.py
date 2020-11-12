@@ -38,6 +38,7 @@ class Customer(Base):
     name = Column(String, index = True)
     orders = relationship("Order", backref = "customer")
     reservations = relationship("Reservation", backref = "customer")  
+    waitings = relationship("Waiting", backref = "customer")
     feedbacks = relationship("Feedback", backref = "customer")  
 
 
@@ -71,6 +72,7 @@ class Table(Base):
     name = Column(Integer, unique = True)
     seat = Column(Integer)
     reservations = relationship("Reservation", backref="table")   
+    waitings = relationship("Waiting", backref="table")   
 
 
 """
@@ -104,5 +106,20 @@ class Feedback(Base):
     rate = Column(Integer)
     comment = Column(String)  
 
+
+"""
+    Reservation model
+
+"""
+
+
+class Waiting(Base):
+    __tablename__ = "waitings"
+
+    id = Column(Integer, primary_key = True, index = True)
+    customer_id = Column(Integer, ForeignKey("customers.id"))
+    table_id = Column(Integer, ForeignKey("tables.id"))
+    slot = Column(Integer)
+    r_date = Column(Date)  # r_date represents Reservation date 
 
  

@@ -37,7 +37,7 @@ def get_food(db : Session = Depends(get_db)):
 
 # Show food by selected category
 @app.get("/food_menu_by_category/", tags=["Food Menu"])
-def get_food_category(category : List[str] = Query(None) , db: Session = Depends(get_db)):
+def get_food_category(category: List[str] = Query(None) , db: Session = Depends(get_db)):
     result = []
     for each_category in category:
         db_category = crud.get_food_by_category(db = db , category = each_category )
@@ -47,26 +47,21 @@ def get_food_category(category : List[str] = Query(None) , db: Session = Depends
 
 # Add new food item 
 @app.post("/food_menu/", tags = ["Food Menu"])
-def creat_food(new_food : schemas.Food_data , db: Session = Depends(get_db)):
+def creat_food(new_food: schemas.Food_data , db: Session = Depends(get_db)):
     return crud.create_food(db = db , new_food = new_food)
 
 
 # Update food details
 @app.put("/food_menu/{food_id}/", tags = ["Food Menu"])
-def update_food(food_id : int, food : schemas.Food_data, db : Session = Depends(get_db)):
-    db_food = crud.exist_food(db = db, food_id = food_id )
-    if db_food:
-        return crud.update_food(db = db, food = food, food_id = food_id)
-    raise HTTPException(status_code=404, detail = "Food not found")
-
+def update_food(food_id: int, food: schemas.Food_data, db: Session = Depends(get_db)):
+    return crud.update_food(db = db, food = food, food_id = food_id)
+    
 
 # Delete food
 @app.delete("/food_menu/{food_id}/", tags = ["Food Menu"])
 def delete_food(food_id : int, db : Session = Depends(get_db)):
-    db_food = crud.exist_food(db = db, food_id = food_id)
-    if db_food:
-        return crud.delete_food(db = db, food_id = food_id)
-    raise HTTPException(status_code=404, detail = "Food not found")
+    return crud.delete_food(db = db, food_id = food_id)
+    
 
 
 """
@@ -100,30 +95,15 @@ def show_order(db : Session = Depends(get_db)):
 
 
 # Create new Order
+# q = quantity
 @app.post("/order/", tags = ["Order"])
-def creat_order(food_id : int, customer_id : int, q : Optional[int] = 1, db : Session = Depends(get_db)):
-    food_available = crud.food_available(db = db, food_id = food_id, q = q)
-    validate_customer = crud.validate_customer(db = db, customer_id = customer_id)
-    
-    if food_available is None and validate_customer is None:
-        raise HTTPException(status_code = 404, 
-            detail="Sorry! Food and Customer both are registered")
-
-    if food_available is None:
-        raise HTTPException(status_code = 404,
-            detail = "Sorry! Food is not available, Please order another food")
-
-    if validate_customer is None:
-        raise HTTPException(status_code = 404, 
-            detail = "Sorry! Customer is not Registered, Please make your acoount.")
-
+def creat_order(food_id: int, customer_id: int, q: Optional[int] = 1, db: Session = Depends(get_db)):
     return crud.create_order(db = db, customer_id = customer_id , food_id = food_id, q = q)
 
 
 # Update Order status
 @app.get("/order update/{order_id}", tags = ["Order"])
 def order_update( order_id: int, update_status : schemas.Order_status, db : Session = Depends(get_db)):
-    print(update_status)
     return crud.order_update(db = db, order_id = order_id, update_status = update_status)
 
 
@@ -136,18 +116,6 @@ def delete_order(order_id : int, db : Session = Depends(get_db)):
 # Add feedback
 @app.post("/order feedback/", tags = ["Order"])
 def feedback_add(feedback_content : schemas.Feedback_data, db: Session = Depends(get_db)):
-    validate_customer = crud.validate_customer(db = db, customer_id = feedback_content.customer_id)
-    validate_order = crud.validate_order(db = db, order_id = feedback_content.order_id)
-    
-    if validate_customer is None and validate_order is None:
-        raise HTTPException(status_code = 404, detail = "Wrong customer ID and Order ID. Please enter correct IDs.")
-   
-    if validate_customer is None:
-        raise HTTPException(status_code = 404, detail = "Wrong customer ID. Please enter correct customer ID.")
-
-    if validate_order is None:
-        raise HTTPException(status_code = 404, detail = "Wrong order ID. Please enter correct order ID.")
-
     return crud.feedback_add(db = db, feedback_content = feedback_content)
 
 
@@ -158,6 +126,7 @@ def feedback_add(feedback_content : schemas.Feedback_data, db: Session = Depends
 
 
 # Get bill
+# If copon code is valid then apply it.
 @app.get("/bill/{customer_id}/", tags = ["Bill"])
 def fatch_bill(customer_id : int,  coupon_code : Optional[str] = None, db : Session = Depends(get_db)):
     final_bill = crud.fatch_bill(db = db, customer_id = customer_id)
@@ -177,19 +146,18 @@ def fatch_bill(customer_id : int,  coupon_code : Optional[str] = None, db : Sess
 
 # Show all Tables
 @app.get("/tables/", tags = ["Table"])
-def get_table(db : Session = Depends(get_db)):
+def get_table(db: Session = Depends(get_db)):
     return crud.get_table(db = db)
 
 
 # Add new Table
 @app.post("/tables/", tags = ["Table"])
-def creat_table(new_table : schemas.Add_table, db : Session = Depends(get_db)):
+def creat_table(new_table: schemas.Add_table, db : Session = Depends(get_db)):
     return crud.create_table(db = db, new_table = new_table)
 
 
-
 """
-    Table APIs are below here:
+    Reservation APIs are below here:
     
 """
 
@@ -209,11 +177,22 @@ def check_table(check_available : schemas.Check_reservation, person : int, db : 
 # Add Reservation
 @app.post("/table reservation/", tags = ["Table Reservation"])
 def create_reservation(reservation_data : schemas.Do_reservation, db : Session = Depends(get_db)):
-    
     return crud.create_reservation(reservation_data = reservation_data, db = db)
 
 
-# Delete Reservation
+# Delete Reservation 
+# Add reservation if any customer is waiting for same table for same slot & date.
 @app.delete("/table reservation/", tags = ["Table Reservation"])
 def delete_reservation(r_id : int, db : Session = Depends(get_db)):
     return crud.delete_reservation(db = db, r_id = r_id)
+
+
+"""
+    Waiting APIs are below here:
+    
+"""
+
+# Add Waiting if table is already reserved.
+@app.post("/waiting/", tags = ["Waiting"])
+def create_waiting(waiting_data : schemas.Do_reservation, db : Session = Depends(get_db)):
+    return crud.create_waiting(waiting_data = waiting_data, db = db)

@@ -1,3 +1,4 @@
+# from sql_app.models import Waiting
 from typing import List, Optional
 from datetime import date, datetime
 from pydantic import BaseModel
@@ -125,3 +126,21 @@ class Order_status(str, Enum):
     order_processed = "Order Processed"
     order_delivered ="Order Delivered"
 
+
+"""
+    Waiting schema
+
+"""
+
+class Waiting_data(BaseModel):
+    customer_id: int
+    table_id: int
+    slot: int
+    r_date: date  # r_date represents Reservation date 
+
+
+class Waiting(Waiting_data):
+    id: int
+
+    class Config:
+        orm_mode = True
