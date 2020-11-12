@@ -3,9 +3,13 @@ from fastapi import Depends, FastAPI, HTTPException,  Query
 from sqlalchemy.orm import Session
 import uvicorn
 # from sqlalchemy.exc import IntegrityError
-import crud, models, schemas
+import crud as crud
+import models as models
+import schemas as schemas
 from database import SessionLocal, engine
 
+from fastapi_pagination import Page, PaginationParams
+from fastapi_pagination.ext.sqlalchemy import paginate
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,7 +21,7 @@ app = FastAPI()
 # def validation_exception_handler(request, exc):
 #     raise HTTPException(status_code=404, detail="Data already present")
 
-# Dependency session 
+# Dependency session
 # function will stop where it will se yield
 # Finally will call after sending the data in response
 def get_db():
@@ -50,7 +54,7 @@ def get_food_category(category: List[str] = Query(None) , db: Session = Depends(
     return result
 
 
-# Add new food item 
+# Add new food item
 @app.post("/food_menu/", tags = ["Food Menu"])
 def creat_food(new_food: schemas.Food_data , db: Session = Depends(get_db)):
     return crud.create_food(db = db , new_food = new_food)
@@ -60,13 +64,13 @@ def creat_food(new_food: schemas.Food_data , db: Session = Depends(get_db)):
 @app.put("/food_menu/{food_id}/", tags = ["Food Menu"])
 def update_food(food_id: int, food: schemas.Food_data, db: Session = Depends(get_db)):
     return crud.update_food(db = db, food = food, food_id = food_id)
-    
+
 
 # Delete food
 @app.delete("/food_menu/{food_id}/", tags = ["Food Menu"])
 def delete_food(food_id : int, db : Session = Depends(get_db)):
     return crud.delete_food(db = db, food_id = food_id)
-    
+
 
 
 """
@@ -75,7 +79,7 @@ def delete_food(food_id : int, db : Session = Depends(get_db)):
 """
 
 
-# Show all Customers 
+# Show all Customers
 @app.get("/customer/", tags = ["Customer"])
 def get_customer(db : Session = Depends(get_db)):
     return crud.get_customer(db = db)
@@ -83,9 +87,21 @@ def get_customer(db : Session = Depends(get_db)):
 
 # Add new Customer
 @app.post("/customer/", tags = ["Customer"])
-def creat_customer(new_customer : str, db : Session = Depends(get_db)):
-    return crud.create_customer(db = db, new_customer = new_customer)
+def creat_customer(new_customer : str, ref_code: Optional[str] = 0 ,db : Session = Depends(get_db)):
+    return crud.create_customer(db = db, new_customer = new_customer, ref_code = ref_code )
 
+@app.delete("/customer/", tags = ["Customer"])
+def delete_customer(customer_id : int, db: Session = Depends(get_db)):
+    return crud.delete_customer(db = db, customer_id = customer_id)
+
+
+@app.get("/customer_relation/", tags = ["Customer"])
+def get_customer(db : Session = Depends(get_db)):
+    return crud.customer_relation(db = db)
+
+@app.get("/users",tags = ["Customer"] )
+def get_users(db: Session = Depends(get_db), params: PaginationParams = Depends()):
+    return paginate(db.query(models.Customer), params)
 
 """
     Food order APIs are below here:
@@ -123,6 +139,10 @@ def delete_order(order_id : int, db : Session = Depends(get_db)):
 def feedback_add(feedback_content : schemas.Feedback_data, db: Session = Depends(get_db)):
     return crud.feedback_add(db = db, feedback_content = feedback_content)
 
+@app.delete("/order_feedback/", tags = ["Order"])
+def feedback_add(feedback_id : int, db: Session = Depends(get_db)):
+    return crud.delete_feedback(db = db, feedback_id = feedback_id)
+
 
 """
     Bill APIs are below here:
@@ -136,7 +156,7 @@ def feedback_add(feedback_content : schemas.Feedback_data, db: Session = Depends
 def fatch_bill(customer_id : int,  coupon_code : Optional[str] = None, db : Session = Depends(get_db)):
     final_bill = crud.fatch_bill(db = db, customer_id = customer_id)
 
-    if coupon_code == "DIWALI10" : 
+    if coupon_code == "DIWALI10" :
         final_bill = (final_bill) - (final_bill* 0.1)
         return final_bill
 
@@ -185,7 +205,7 @@ def create_reservation(reservation_data : schemas.Do_reservation, db : Session =
     return crud.create_reservation(reservation_data = reservation_data, db = db)
 
 
-# Delete Reservation 
+# Delete Reservation
 # Add reservation if any customer is waiting for same table for same slot & date.
 @app.delete("/table reservation/", tags = ["Table Reservation"])
 def delete_reservation(r_id : int, db : Session = Depends(get_db)):
@@ -199,9 +219,11 @@ def delete_reservation(r_id : int, db : Session = Depends(get_db)):
 
 # Add Waiting if table is already reserved.
 @app.post("/waiting/", tags = ["Waiting"])
-def create_waiting(waiting_data : schemas.Do_reservation, db : Session = Depends(get_db)):
+def create_waiting(waiting_data : schemas.Waiting_data, db : Session = Depends(get_db)):
     return crud.create_waiting(waiting_data = waiting_data, db = db)
 
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app")
+#
+

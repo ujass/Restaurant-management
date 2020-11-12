@@ -36,6 +36,10 @@ class Customer(Base):
 
     id = Column(Integer, primary_key = True, index = True)
     name = Column(String, index = True)
+    own_code = Column(String)
+    ref_code = Column(String)
+    # balance: Column(Integer)
+
     orders = relationship("Order", backref = "customer")
     reservations = relationship("Reservation", backref = "customer")  
     waitings = relationship("Waiting", backref = "customer")

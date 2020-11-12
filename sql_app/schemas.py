@@ -31,9 +31,16 @@ class Food(Food_data):
 """
 
 
+class Customer_data(BaseModel):
+    name: str
+    ref_code: str
+
+
 class Customer(BaseModel):
     id : int
     name : str
+    own_code: str
+    # balance: int
 
     class Config:
         orm_mode = True

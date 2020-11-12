@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session , join , outerjoin
 import itertools
 from sqlalchemy import and_ , func
 from fastapi import HTTPException
+import uuid
 
 
 import models, schemas
@@ -101,14 +102,64 @@ def get_customer(db : Session):
     return db.query(models.Customer).all()
 
 # Add customer
-def create_customer(db : Session, new_customer : str):
+def create_customer(db : Session, new_customer : str, ref_code: str):
+    check_code = db.query(models.Customer).filter(models.Customer.own_code == ref_code).first()
+    if check_code:
+        new_ref_code = ref_code
+        # check_code.balance = 50
+        # db.add(check_code)
+        # db.refresh(check_code)
+        print("same")
+
+    else:
+        print("not same")
+        new_ref_code = "0"
+
+    own_code = uuid.uuid4().hex[:6].upper()
     db_customer = models.Customer()
     db_customer.name = new_customer
+    db_customer.own_code = own_code
+    # db_customer.balance = 0
+    db_customer.ref_code = new_ref_code
     db.add(db_customer)
     db.commit()
     db.refresh(db_customer)
     return db_customer
 
+def delete_customer(db : Session, customer_id : int):
+    # exist_food(db = db, food_id = food_id)
+    customer_remove = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+    db.delete(customer_remove)
+    db.commit()
+    return {"Customer removed"}
+
+
+
+def customer_relation(db: Session):
+    all_customer = get_customer(db = db)
+    result = []
+
+    for i, value in enumerate(all_customer):
+        result.append([value])
+        j = 0
+
+        while j < len(result[i]):
+            check_obj = result[i][j]
+            for each_customer in all_customer:
+                if each_customer.ref_code == check_obj.own_code:
+                    result[i].append(each_customer)
+                    j += 1
+                else:
+                    j += 1
+
+    new_result = []
+    for i in result:
+        if len(i) > 1:
+            new_result.append((i))
+
+    print(new_result)
+
+    return new_result
 
 """
     Order operations
@@ -186,6 +237,16 @@ def feedback_add(db : Session, feedback_content : schemas.Feedback_data):
     db.refresh(add_content)
     return {"Feedback Added"}
     
+
+def delete_feedback(db : Session, feedback_id : int):
+    # exist_food(db = db, food_id = food_id)
+    feedback_remove = db.query(models.Feedback).filter(models.Feedback.id == feedback_id).first()
+    db.delete(feedback_remove)
+    db.commit()
+    return {"Feedback removed"}
+
+
+
 
 """
     Bill operation
