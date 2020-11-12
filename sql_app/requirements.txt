@@ -7,4 +7,3 @@ starlette==0.13.6
 uvicorn==0.12.2
 numpy==1.19.4
 
-install numpy in venv and then take it version // for ujesh 

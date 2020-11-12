@@ -1,7 +1,8 @@
 from typing import Optional , List
 from fastapi import Depends, FastAPI, HTTPException,  Query
 from sqlalchemy.orm import Session
-
+import uvicorn
+# from sqlalchemy.exc import IntegrityError
 import crud, models, schemas
 from database import SessionLocal, engine
 
@@ -11,6 +12,10 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+
+# @app.exception_handler(IntegrityError)
+# def validation_exception_handler(request, exc):
+#     raise HTTPException(status_code=404, detail="Data already present")
 
 # Dependency session 
 # function will stop where it will se yield
@@ -196,3 +201,7 @@ def delete_reservation(r_id : int, db : Session = Depends(get_db)):
 @app.post("/waiting/", tags = ["Waiting"])
 def create_waiting(waiting_data : schemas.Do_reservation, db : Session = Depends(get_db)):
     return crud.create_waiting(waiting_data = waiting_data, db = db)
+
+
+# if __name__ == "__main__":
+#     uvicorn.run("main:app")

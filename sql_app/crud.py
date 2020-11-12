@@ -1,8 +1,8 @@
 from datetime import date
 from logging import exception
-from sqlalchemy.orm import Session , join , outerjoin
+from sqlalchemy.orm import Session , join , outerjoin 
 import itertools
-from sqlalchemy import and_
+from sqlalchemy import and_ , func
 from fastapi import HTTPException
 
 
@@ -33,6 +33,15 @@ def food_available(db : Session, food_id : int,  q : int):
         raise HTTPException(status_code = 404,
             detail = "Sorry! Food is not available, Please order another food")
 
+
+# Check same food present or not
+def same_food(db: Session, food_name : str):
+    food_same = db.query(models.Food).filter(func.lower(models.Food.food_name) == food_name.lower())
+    if food_same:
+        raise HTTPException(status_code=404, detail = "Food already present")
+
+
+
 # Get all food
 def get_food(db : Session):
     return db.query(models.Food).all()
@@ -43,6 +52,8 @@ def get_food_by_category(db : Session, category : str):
 
 # Add food
 def create_food(db : Session, new_food : schemas.Food_data):
+    same_food(db = db, food_name = new_food.food_name)
+    
     db_food = models.Food(**new_food.dict())
     db.add(db_food)
     db.commit()
