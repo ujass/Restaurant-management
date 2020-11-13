@@ -398,3 +398,9 @@ def create_waiting(db : Session, waiting_data : schemas.Waiting_data):
     db.commit()
     db.refresh(add_waiting)
     return {"Waiting done"}
+
+
+
+def auto_suggestion(waiting_data : str, db : Session):
+    result = db.query(models.Customer.name).all()
+    

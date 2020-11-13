@@ -16,7 +16,10 @@ Python
 2. Sqlalchemy for ORM
 # How to run
 - [x] move to /sql_app in your terminal
-- [x] run  `uvicorn main:app --reload`
+- [x] run  `python main.py` for all operations
+- [x] run  `python main2.py` for update order suggestion table
+- [x] run  `python main3.py` for autosuggestion 
+
 
 
 

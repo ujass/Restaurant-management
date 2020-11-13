@@ -11,6 +11,7 @@ from database import SessionLocal, engine
 from fastapi_pagination import Page, PaginationParams
 from fastapi_pagination.ext.sqlalchemy import paginate
 
+
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -99,9 +100,9 @@ def delete_customer(customer_id : int, db: Session = Depends(get_db)):
 def get_customer(db : Session = Depends(get_db)):
     return crud.customer_relation(db = db)
 
-@app.get("/users",tags = ["Customer"] )
-def get_users(db: Session = Depends(get_db), params: PaginationParams = Depends()):
-    return paginate(db.query(models.Customer), params)
+# @app.get("/users",tags = ["Customer"] )
+# def get_users(db: Session = Depends(get_db), params: PaginationParams = Depends()):
+#     return paginate(db.query(models.Customer), params)
 
 """
     Food order APIs are below here:
@@ -223,7 +224,15 @@ def create_waiting(waiting_data : schemas.Waiting_data, db : Session = Depends(g
     return crud.create_waiting(waiting_data = waiting_data, db = db)
 
 
-# if __name__ == "__main__":
-#     uvicorn.run("main:app")
-#
+@app.post("/autosuggestion/", tags = ["Autosuggestion"])
+def auto_suggestion(waiting_data : str, db : Session = Depends(get_db)):
+    return crud.auto_suggestion(waiting_data = waiting_data, db = db)
+
+
+
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app")
+
 
