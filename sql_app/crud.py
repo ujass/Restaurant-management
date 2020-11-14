@@ -106,20 +106,14 @@ def create_customer(db : Session, new_customer : str, ref_code: str):
     check_code = db.query(models.Customer).filter(models.Customer.own_code == ref_code).first()
     if check_code:
         new_ref_code = ref_code
-        # check_code.balance = 50
-        # db.add(check_code)
-        # db.refresh(check_code)
-        print("same")
 
     else:
-        print("not same")
         new_ref_code = "0"
 
     own_code = uuid.uuid4().hex[:6].upper()
     db_customer = models.Customer()
     db_customer.name = new_customer
     db_customer.own_code = own_code
-    # db_customer.balance = 0
     db_customer.ref_code = new_ref_code
     db.add(db_customer)
     db.commit()
@@ -127,14 +121,15 @@ def create_customer(db : Session, new_customer : str, ref_code: str):
     return db_customer
 
 def delete_customer(db : Session, customer_id : int):
-    # exist_food(db = db, food_id = food_id)
+    validate_customer(db = db, customer_id = customer_id)
     customer_remove = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
     db.delete(customer_remove)
     db.commit()
     return {"Customer removed"}
 
 
-
+# Customer relation
+# This method will give us the list of people who are related to each other 
 def customer_relation(db: Session):
     all_customer = get_customer(db = db)
     result = []
@@ -157,9 +152,29 @@ def customer_relation(db: Session):
         if len(i) > 1:
             new_result.append((i))
 
-    print(new_result)
-
     return new_result
+
+# manual pagination
+def customer_pagination(db : Session, page_number : int, page_size: int):
+    all_customer = db.query(models.Customer).all()
+    total_customer = len(all_customer)
+    if page_size > total_customer:
+        raise HTTPException(status_code = 404, detail = "please enter lower number")
+
+    if  total_customer % page_size == 0:
+        page_count = total_customer // page_size
+    else:
+        page_count = (total_customer // page_size) + 1
+
+    if page_number > page_count:
+        raise HTTPException(status_code = 404, detail = "page number out of range")
+
+    result_number = page_size * (page_number-1)
+    if page_number != page_count:
+        return all_customer[result_number: result_number+page_size]
+    else:
+        return all_customer[result_number:]
+    
 
 """
     Order operations
@@ -399,8 +414,3 @@ def create_waiting(db : Session, waiting_data : schemas.Waiting_data):
     db.refresh(add_waiting)
     return {"Waiting done"}
 
-
-
-def auto_suggestion(waiting_data : str, db : Session):
-    result = db.query(models.Customer.name).all()
-    

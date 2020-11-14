@@ -2,14 +2,11 @@ from typing import Optional , List
 from fastapi import Depends, FastAPI, HTTPException,  Query
 from sqlalchemy.orm import Session
 import uvicorn
-# from sqlalchemy.exc import IntegrityError
+
 import crud as crud
 import models as models
 import schemas as schemas
 from database import SessionLocal, engine
-
-from fastapi_pagination import Page, PaginationParams
-from fastapi_pagination.ext.sqlalchemy import paginate
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -17,10 +14,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-
-# @app.exception_handler(IntegrityError)
-# def validation_exception_handler(request, exc):
-#     raise HTTPException(status_code=404, detail="Data already present")
 
 # Dependency session
 # function will stop where it will se yield
@@ -91,18 +84,28 @@ def get_customer(db : Session = Depends(get_db)):
 def creat_customer(new_customer : str, ref_code: Optional[str] = 0 ,db : Session = Depends(get_db)):
     return crud.create_customer(db = db, new_customer = new_customer, ref_code = ref_code )
 
+# Delete Customer
 @app.delete("/customer/", tags = ["Customer"])
 def delete_customer(customer_id : int, db: Session = Depends(get_db)):
     return crud.delete_customer(db = db, customer_id = customer_id)
 
-
+# Customer relationship
 @app.get("/customer_relation/", tags = ["Customer"])
 def get_customer(db : Session = Depends(get_db)):
     return crud.customer_relation(db = db)
 
-# @app.get("/users",tags = ["Customer"] )
-# def get_users(db: Session = Depends(get_db), params: PaginationParams = Depends()):
-#     return paginate(db.query(models.Customer), params)
+
+
+
+# Manual pagination
+# Page size = number of result per page 
+# Page number = which number page you want as a result
+@app.get("/custome_pagination",tags = ["Customer"])
+def customer_pagination( page_number : int , page_size: int,db: Session = Depends(get_db)):
+    return crud.customer_pagination(db = db, page_number = page_number, page_size = page_size)
+
+
+
 
 """
     Food order APIs are below here:
@@ -222,14 +225,6 @@ def delete_reservation(r_id : int, db : Session = Depends(get_db)):
 @app.post("/waiting/", tags = ["Waiting"])
 def create_waiting(waiting_data : schemas.Waiting_data, db : Session = Depends(get_db)):
     return crud.create_waiting(waiting_data = waiting_data, db = db)
-
-
-@app.post("/autosuggestion/", tags = ["Autosuggestion"])
-def auto_suggestion(waiting_data : str, db : Session = Depends(get_db)):
-    return crud.auto_suggestion(waiting_data = waiting_data, db = db)
-
-
-
 
 
 if __name__ == "__main__":

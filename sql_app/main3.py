@@ -17,17 +17,10 @@ css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script> 
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
   <script> 
-  $( function() { 
-    var tags = [ "dabeli" , "vadapau", "paneer" , "papad",
-                  "buttermilk" , "roti" , "dal- rice" , "idali" , "upama",
-                  "dosa"  
-    ]; 
+  $( function() {        
+    var tags = ['DABELI', 'VADAPAU', 'PANEER', 'ROTI', 'BUTTERMILK', 'PAPAD']; 
     $( "#tags" ).autocomplete({ 
       source: tags 
-  
-/* #tthe ags is the id of the input element 
-source: tags is the list of available tags*/ 
-  
   
     }); 
   } ); 
@@ -44,7 +37,6 @@ source: tags is the list of available tags*/
 </html> 
 
 """
-
 
 @app.get("/")
 async def get():
