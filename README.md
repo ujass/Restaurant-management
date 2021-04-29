@@ -1,12 +1,12 @@
 # Restaurant management system - Fastapi
-Implemented Food ordering and Table reservation system through Fastapi & Sqlalchemy ORM.
+Implemented Food ordering and Table reservation system with Fastapi & Sqlalchemy ORM.
 ## Description
-This project is created for learning purpose. From listing Food/Table to take orders/reservations you can do everything.
+This project is created for learning purpose. You can manage your food ordering and table reservation with this project.
 ### Features 
-- Add/ remove Food items, Tables
+- Manage your food order.
 - Take order and update food quantity dynamically
 - Book/ cancel table reservation
-- Manage waiting room
+- Manage waiting room 
 - Get bill and add coupon code
 
 # Language Used
@@ -21,5 +21,5 @@ Python
 - [x] run  `python main3.py` for autosuggestion 
 
 
-
+### Hope you like this!!! By the way - this is my first project ever.
 
